@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="designs/style2.css">
+</head>
+<body>
+    <input type="checkbox" id="check">
+    <label for="check">
+        <i class="fas fa-bars" id="sidebar_btn"></i>
+    </label>
+    <!-----header begins----->
+    <header>
+        <div class="left_area">
+            <h3>Patient<span> Dashboard</span></h3>
+        </div>
+        <div class="right_area">
+            <a href="#" class="logout_btn">Logout</a>
+        </div>
+    </header>
+    <!-----header ends----->
+
+    <!-----sidebar begins----->
+    <div class="sidebar">
+        <center>
+            <img src="images/room.jpg" class="profile_image" alt="">
+            <h4>Menu</h4>
+        </center>
+        <a href="index.html"><i class="fas fa-desktop"></i><span>Dashboard</span></a>
+        <a href="information.html"><i class="fas fa-info"></i><span>Patient Information</span></a>
+        <a href="#"><i class="fas fa-sliders-h"></i><span>Settings</span></a>
+    </div>
+    <!-----sidebar ends----->
+
+    <!-----page content begins----->
+    <div class="content">
+        <div class="container">
+            <div class="title">Patient Information</div>
+            <form action="#">
+                <div class="user_details">
+                    <div class="input_box">
+                        <span class="details">Full Name</span>
+                        <input type="text" id="full_name" placeholder="Enter the patients name">
+                    
+                    </div>
+                    <div class="input_box">
+                        <span class="details">Patient ID</span>
+                        <input type="text" id="patient_id" placeholder="Enter the Patient ID">
+                    
+                    </div> 
+                    <div class="input_box">
+                        <span class="details">Default Position</span>
+                        <input type="text" id="position" placeholder="Enter your default bed position">
+                    
+                    </div>
+                    <div class="input_box">
+                        <span class="details">Temperature</span>
+                        <input type="text" id="temperature" placeholder="Enter your Temperature">
+                    
+                    </div>
+                </div>
+                <div class="button">
+                    <input type="submit" value="Submit">
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-----page content ends----->
+    <script>
+        let button = document.querySelector(".button");
+        button.addEventListener("click", function(event){
+            let name = document.getElementById("full_name").value;
+            let id = document.getElementById("patient_id").value;
+            let pos = document.getElementById("position").value;
+            let temp = document.getElementById("temperature").value;
+
+            if((name == "")||(id == "")||(pos == "")||(temp == "")){
+                // If any of the fields are left blank then make PATCH request
+                console.log("Make PATCH Request");
+            }
+            else{
+                // If all fields are full, then make POST request
+                console.log("Make POST Request");
+            }
+        });
+    </script>
+</body>
+</html>
