@@ -21,34 +21,94 @@ mongo_uri = "mongodb+srv://{}:{}@cluster0.weykq.mongodb.net/monday?retryWrites=t
 app.config["MONGO_URI"] = mongo_uri
 mongo = PyMongo(app)
 
-class PatientSchema(Schema):
+class RecordSchema(Schema):
     patient_id = fields.String(required=True)
     position = fields.Integer(required=True)
     temperature = fields.Integer(required=True)
+    last_updated = fields.String(required=True)
 
-@app.route("/data")
-def get_patient_data():
+class PatientSchema(Schema):
+    first_name = fields.String(required=True)
+    last_name = fields.String(required=True)
+    age = fields.Integer(required=True)
+    patient_id = fields.String(required=True)
+
+'''
+    This route returns all of the patient objects stored in the 
+    database
+'''
+@app.route("/api/patient", methods=["GET"])
+def get_all_patient_data():
     patients = mongo.db.patients.find()
     return jsonify(loads(dumps(patients))) 
 
-@app.route("/data", methods=["POST"])
+'''
+    This route returns a single patient object that is stored in 
+    the database
+'''
+@app.route("api/patient/<id>", methods=["GET"])
+def get_single_patient_data(id):
+    patient = mongo.db.patients.find_one({"patient_id", id})
+    return jsonify(loads(dumps(patient)))
+
+'''
+    This route handles the POST requests made to the server by the 
+    frontend 
+'''
+@app.route("api/patient", methods=["POST"])
 def post_patient_data():
     try:
+        now = datetime.now()
+        dt = now.strftime("%d/%m/%Y %H:%M:%S")
+
+        first_name = request.json["first_name"]
+        last_name = request.json["last_name"]
         patient_id = request.json["patient_id"]
-        position = request.json["position"]
-        temperature = request.json["temperature"]
 
         jsonBody = {
-            "patient_id": patient_id,
-            "position": position,
-            "temperature": temperature
+            "first_name": first_name,
+            "last_name": last_name,
+            "patient_id": patient_id
         }
+
+        print(jsonBody)
 
         patient_data = PatientSchema().load(jsonBody)
         mongo.db.patients.insert_one(patient_data)
 
+        return{
+            "success": True,
+            "message": "Data saved successfully",
+            "date": dt
+        }
+
+    except ValidationError as e:
+        return e.messages, 400
+
+'''
+    This route handles the POST requests made to the server by the 
+    embedded client
+'''
+@app.route("/data", methods=["POST"])
+def post_patient_data():
+    try:
         now = datetime.now()
         dt = now.strftime("%d/%m/%Y %H:%M:%S")
+
+        patient_id = request.json["patient_id"]
+        position = request.json["position"]
+        temperature = request.json["temperature"]
+        last_updated = dt
+
+        jsonBody = {
+            "patient_id": patient_id,
+            "position": position,
+            "temperature": temperature,
+            "last_updated": last_updated
+        }
+
+        record_data = RecordSchema().load(jsonBody)
+        mongo.db.records.insert_one(record_data)
 
         print(jsonBody)
 
@@ -63,6 +123,6 @@ def post_patient_data():
 if __name__ == "__main__":
     app.run(
         debug=True,
-        host="192.168.1.7",
+        host="192.168.1.11",
         port=5000
     )
