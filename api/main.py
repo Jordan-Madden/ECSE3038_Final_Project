@@ -86,6 +86,38 @@ def post_patient_data():
         return e.messages, 400
 
 '''
+    This route handles the PATCH requests made to the server by the 
+    frontend 
+'''
+@app.route("/api/patient/<id>", methods=["PATCH"])
+def patch_patient_data(id):
+    try:
+        mongo.db.patients.update_one({"patient_id": id}, {"$set": request.json})
+        patient = mongo.db.find_one({"patient_id": id})
+
+        return loads(dumps(patient))
+
+    except ValidationError as e:
+        return e.messages, 400
+
+'''
+    This route handles the DELETE requests made to the server by the 
+    frontend 
+'''
+@app.route("/api/patient/<id>", methods=["DELETE"])
+def delete_patient_data(id):
+    result = mongo.db.patients.delete_one({"patient_id": id})
+
+    if result.deleted_count == 1:
+        return {
+            "success": True,
+        }
+    else:
+        return{
+            "success": False,
+        }, 400
+
+'''
     This route handles the POST requests made to the server by the 
     embedded client
 '''
