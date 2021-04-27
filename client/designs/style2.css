@@ -119,6 +119,8 @@ label #sidebar_btn:hover{
 .container .title{
     font-size: 25px;
     font-weight: 600;
+    margin-top: 90px;
+    margin-left: 190px;
     position: relative;
 }
 .container .title:before{
@@ -132,9 +134,10 @@ label #sidebar_btn:hover{
 }
 .container form .user_details{
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    /* flex-wrap: wrap; */
     justify-content: space-between;
-    margin: 20px 0 12px 0;
+    margin: 30px 0 12px 150px;
 }
 .container form .user_details .input_box{
     margin-bottom: 15px;
@@ -147,7 +150,7 @@ label #sidebar_btn:hover{
 }
 .user_details .input_box input{
     height: 45px;
-    width: 100%;
+    width: 150%;
     outline: none;
     border-radius: 5px;
     border: 1px solid #ccc;
