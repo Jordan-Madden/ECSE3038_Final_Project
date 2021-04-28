@@ -1,4 +1,4 @@
-function createPatientCards(patient){
+function createPatientCards(patient, record){
     var patientDataDiv = document.createElement("DIV");
     patientDataDiv.classList.add("patient_data");
 
@@ -19,7 +19,7 @@ function createPatientCards(patient){
     var firstNameSpan1 = document.createElement("SPAN");
     firstNameSpan1.innerHTML = "First Name";
     var firstNameSpan2 = document.createElement("SPAN");
-    firstNameSpan2.innerHTML = "John";
+    firstNameSpan2.innerHTML = patient.first_name;
     firstNameDiv.append(firstNameSpan1);
     firstNameDiv.append(firstNameSpan2);
 
@@ -28,7 +28,7 @@ function createPatientCards(patient){
     var lastNameSpan1 = document.createElement("SPAN");
     lastNameSpan1.innerHTML = "Last Name";
     var lastNameSpan2 = document.createElement("SPAN");
-    lastNameSpan2.innerHTML = "Doe";
+    lastNameSpan2.innerHTML = patient.last_name;
     lastNameDiv.append(lastNameSpan1);
     lastNameDiv.append(lastNameSpan2);
 
@@ -37,7 +37,7 @@ function createPatientCards(patient){
     var positionSpan1 = document.createElement("SPAN");
     positionSpan1.innerHTML = "Position";
     var positionSpan2 = document.createElement("SPAN");
-    positionSpan2.innerHTML = 350;
+    positionSpan2.innerHTML = record;
     positionDiv.append(positionSpan1);
     positionDiv.append(positionSpan2);
     
@@ -47,7 +47,7 @@ function createPatientCards(patient){
     var patientIdSpan1 = document.createElement("SPAN");
     patientIdSpan1.innerHTML = "Patient ID";
     var patientIdSpan2 = document.createElement("SPAN");
-    patientIdSpan2.innerHTML = "15:C2:4E:91";
+    patientIdSpan2.innerHTML = patient.patient_id;
     patientIdDiv.append(patientIdSpan1);
     patientIdDiv.append(patientIdSpan2);
 
@@ -63,20 +63,34 @@ function createPatientCards(patient){
 }
 
 function getPatientData(){
-    return fetch("http://192.168.1.11:5000/api/patient").then(res => res.json()).then(json => json)
+    return fetch("http://192.168.1.11:5000/api/patient").then(res => res.json()).then(json => json);
+}
+
+function getPosition(id){
+    return fetch("http://192.168.1.11:5000/api/record/" + id).then(res => res.json()).then(json => json);
+}
+
+async function getPositionData(id){
+    let record = await getPosition(id);
+    console.log(record.position);
+    position = record.position;
+    return position;
 }
 
 async function displayPatientData(){
-    let patients = await getPatientData();
+    let patients = await getPatientData();  
     console.log(patients);
 
     patients.forEach(patient => {
-        var content = document.querySelector(".content");
-        content.append(createPatientCards(patient));
+        console.log(patient.patient_id);
+        getPositionData(patient.patient_id).then(res => {
+            var content = document.querySelector(".content");
+            console.log(res);
+            content.append(createPatientCards(patient, res));
+        });        
     });
 }
 
 window.onload = function(){
-    //console.log("[INFO] Working...");
     displayPatientData();
-}
+} 

@@ -42,20 +42,20 @@ def get_all_patient_data():
     patients = mongo.db.patients.find()
     return jsonify(loads(dumps(patients))) 
 
-'''
-    This route returns a single patient object that is stored in 
-    the database
-'''
-@app.route("api/patient/<id>", methods=["GET"])
-def get_single_patient_data(id):
-    patient = mongo.db.patients.find_one({"patient_id", id})
-    return jsonify(loads(dumps(patient)))
+# '''
+#     This route returns a single patient object that is stored in 
+#     the database
+# '''
+# @app.route("api/patient/<id>", methods=["GET"])
+# def get_single_patient_data(id):
+#     patient = mongo.db.patients.find_one({"patient_id", id})
+#     return jsonify(loads(dumps(patient)))
 
 '''
     This route handles the POST requests made to the server by the 
     frontend 
 '''
-@app.route("api/patient", methods=["POST"])
+@app.route("/api/patient", methods=["POST"])
 def post_patient_data():
     try:
         now = datetime.now()
@@ -63,11 +63,13 @@ def post_patient_data():
 
         first_name = request.json["first_name"]
         last_name = request.json["last_name"]
+        age = request.json["age"]
         patient_id = request.json["patient_id"]
 
         jsonBody = {
             "first_name": first_name,
             "last_name": last_name,
+            "age": age,
             "patient_id": patient_id
         }
 
@@ -85,44 +87,50 @@ def post_patient_data():
     except ValidationError as e:
         return e.messages, 400
 
-'''
-    This route handles the PATCH requests made to the server by the 
-    frontend 
-'''
-@app.route("/api/patient/<id>", methods=["PATCH"])
-def patch_patient_data(id):
-    try:
-        mongo.db.patients.update_one({"patient_id": id}, {"$set": request.json})
-        patient = mongo.db.find_one({"patient_id": id})
+# '''
+#     This route handles the PATCH requests made to the server by the 
+#     frontend 
+# '''
+# @app.route("/api/patient/<id>", methods=["PATCH"])
+# def patch_patient_data(id):
+#     try:
+#         mongo.db.patients.update_one({"patient_id": id}, {"$set": request.json})
+#         patient = mongo.db.find_one({"patient_id": id})
 
-        return loads(dumps(patient))
+#         return loads(dumps(patient))
 
-    except ValidationError as e:
-        return e.messages, 400
+#     except ValidationError as e:
+#         return e.messages, 400
 
-'''
-    This route handles the DELETE requests made to the server by the 
-    frontend 
-'''
-@app.route("/api/patient/<id>", methods=["DELETE"])
-def delete_patient_data(id):
-    result = mongo.db.patients.delete_one({"patient_id": id})
+# '''
+#     This route handles the DELETE requests made to the server by the 
+#     frontend 
+# '''
+# @app.route("/api/patient/<id>", methods=["DELETE"])
+# def delete_patient_data(id):
+#     result = mongo.db.patients.delete_one({"patient_id": id})
 
-    if result.deleted_count == 1:
-        return {
-            "success": True,
-        }
-    else:
-        return{
-            "success": False,
-        }, 400
+#     if result.deleted_count == 1:
+#         return {
+#             "success": True,
+#         }
+#     else:
+#         return{
+#             "success": False,
+#         }, 400
+
+@app.route("/api/record/<id>", methods=["GET"])
+def get_single_record_data(id):
+    record = mongo.db.records.find_one()
+    print(record)
+    return jsonify(loads(dumps(record))) 
 
 '''
     This route handles the POST requests made to the server by the 
     embedded client
 '''
-@app.route("/data", methods=["POST"])
-def post_patient_data():
+@app.route("/api/record", methods=["POST"])
+def post_record_data():
     try:
         now = datetime.now()
         dt = now.strftime("%d/%m/%Y %H:%M:%S")

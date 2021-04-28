@@ -135,12 +135,17 @@ label #sidebar_btn:hover{
 .patient_img{
     width: 200px;
     height: 240px;
+    background: rgb(255, 255, 255);
+    /*border: solid  black 2px; */
+}
+.patient_img :hover{
     background: #ccc;
-    /* border: solid  black 2px; */
 }
 .patient_img img{
-    margin-left: 25px;
-    margin-top: 40px;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 40px;
+    padding-bottom: 50px;
     width: 150px;
     height: 150px;
 }
