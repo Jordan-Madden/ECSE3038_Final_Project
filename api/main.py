@@ -33,23 +33,24 @@ class PatientSchema(Schema):
     age = fields.Integer(required=True)
     patient_id = fields.String(required=True)
 
-'''
-    This route returns all of the patient objects stored in the 
-    database
-'''
 @app.route("/api/patient", methods=["GET"])
 def get_all_patient_data():
+    '''
+        This route returns all of the patient objects stored in the 
+        database
+    '''
     patients = mongo.db.patients.find()
     return jsonify(loads(dumps(patients))) 
 
-# '''
-#     This route returns a single patient object that is stored in 
-#     the database
-# '''
-# @app.route("api/patient/<id>", methods=["GET"])
-# def get_single_patient_data(id):
-#     patient = mongo.db.patients.find_one({"patient_id", id})
-#     return jsonify(loads(dumps(patient)))
+
+@app.route("/api/patient/<id>", methods=["GET"])
+def get_single_patient_data(id):
+    '''
+        This route returns a single patient object that is stored in 
+        the database
+    '''
+    patient = mongo.db.patients.find_one({"patient_id": id})
+    return jsonify(loads(dumps(patient)))
 
 '''
     This route handles the POST requests made to the server by the 
@@ -87,50 +88,51 @@ def post_patient_data():
     except ValidationError as e:
         return e.messages, 400
 
-# '''
-#     This route handles the PATCH requests made to the server by the 
-#     frontend 
-# '''
-# @app.route("/api/patient/<id>", methods=["PATCH"])
-# def patch_patient_data(id):
-#     try:
-#         mongo.db.patients.update_one({"patient_id": id}, {"$set": request.json})
-#         patient = mongo.db.find_one({"patient_id": id})
+@app.route("/api/patient/<id>", methods=["PATCH"])
+def patch_patient_data(id):
+    '''
+        This route handles the PATCH requests made to the server by the 
+        frontend 
+    '''
+    mongo.db.patients.update_one({"patient_id": id}, {"$set": request.json})
+    patient = mongo.db.patients.find_one({"patient_id": id})
 
-#         return loads(dumps(patient))
+    return loads(dumps(patient))
 
-#     except ValidationError as e:
-#         return e.messages, 400
+@app.route("/api/patient/<id>", methods=["DELETE"])
+def delete_patient_data(id):
+    '''
+        This route handles the DELETE requests made to the server by the 
+        frontend 
+    '''
+    result = mongo.db.patients.delete_one({"patient_id": id})
 
-# '''
-#     This route handles the DELETE requests made to the server by the 
-#     frontend 
-# '''
-# @app.route("/api/patient/<id>", methods=["DELETE"])
-# def delete_patient_data(id):
-#     result = mongo.db.patients.delete_one({"patient_id": id})
-
-#     if result.deleted_count == 1:
-#         return {
-#             "success": True,
-#         }
-#     else:
-#         return{
-#             "success": False,
-#         }, 400
+    if result.deleted_count == 1:
+        return {
+            "success": True,
+        }
+    else:
+        return{
+            "success": False,
+        }, 400
 
 @app.route("/api/record/<id>", methods=["GET"])
 def get_single_record_data(id):
+    '''
+        This route handles the individual GET requests made to the server by the 
+        frontend. It gets the record data so that the position of a patient can
+        be determined and displayed in the frontend
+    '''
     record = mongo.db.records.find_one({"patient_id":id})
     print(record)
     return jsonify(loads(dumps(record))) 
 
-'''
-    This route handles the POST requests made to the server by the 
-    embedded client
-'''
 @app.route("/api/record", methods=["POST"])
 def post_record_data():
+    '''
+        This route handles the POST requests made to the server by the 
+        embedded client
+    '''
     try:
         now = datetime.now()
         dt = now.strftime("%d/%m/%Y %H:%M:%S")
