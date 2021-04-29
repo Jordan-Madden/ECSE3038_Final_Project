@@ -78,12 +78,14 @@ function createPatientCards(patient, record){
     return patientDataDiv;
 }
 
+var patientPath = "http://192.168.1.11:5000/api/patient";
 function getPatientData(){
-    return fetch("http://192.168.1.11:5000/api/patient").then(res => res.json()).then(json => json);
+    return fetch(patientPath).then(res => res.json()).then(json => json);
 }
 
+var recordPath = "http://192.168.1.11:5000/api/record/";
 function getPosition(id){
-    return fetch("http://192.168.1.11:5000/api/record/" + id).then(res => res.json()).then(json => json);
+    return fetch(recordPath + id).then(res => res.json()).then(json => json);
 }
 
 async function getPositionData(id){
@@ -108,6 +110,7 @@ async function displayPatientData(){
 }
 
 window.onload = function(){
+    
     displayPatientData();
 
     setTimeout(function(){
@@ -115,7 +118,16 @@ window.onload = function(){
         deleteButtons.forEach(button => {
             button.addEventListener("click", function(){
                 // Send delete request to server
-                console.log(button.id);
+                console.log("DELETE "+ button.id);
+                fetch(patientPath +"/"+ button.id, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-type": "application/json",
+                    },
+                });
+
+                var content = document.querySelector(".content");
+                content.innerHTML = "";
             });
         });
 
@@ -124,9 +136,13 @@ window.onload = function(){
             button.addEventListener("click", function(){
                 // Navigate to page where edits can be made
                 console.log(button.id);
+
+                // Save ID to session storage and redirect to the edit page
+                sessionStorage.setItem("patient_id", button.id);
+                location.href = "information.html";
+                window.open("information.html");
             });
         });
-    }, 3000);
-    
+    }, 3000);   
     
 } 
