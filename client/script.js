@@ -7,8 +7,24 @@ function createPatientCards(patient, record){
     patientImgDiv.classList.add("patient_img");
 
     var patientImgImg = document.createElement("IMG");
-    patientImgImg.src = "images/user.png";
+    patientImgImg.src = "images/user.png";    
+
+    var patientButtonDiv = document.createElement("DIV");
+    patientButtonDiv.classList.add("buttons");
+
+    var editButton = document.createElement("DIV");
+    editButton.classList.add("edit");
+    editButton.setAttribute("id", patient.patient_id);
+    editButton.innerHTML = "Edit";
+    var deleteButton = document.createElement("DIV");
+    deleteButton.classList.add("delete");
+    deleteButton.setAttribute("id", patient.patient_id)
+    deleteButton.innerHTML = "Delete";
+    patientButtonDiv.append(editButton);
+    patientButtonDiv.append(deleteButton);
+
     patientImgDiv.append(patientImgImg);
+    patientImgDiv.append(patientButtonDiv);
 
     // Display Div
     var displayDiv = document.createElement("DIV");
@@ -93,4 +109,24 @@ async function displayPatientData(){
 
 window.onload = function(){
     displayPatientData();
+
+    setTimeout(function(){
+        var deleteButtons = document.querySelectorAll(".delete");
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function(){
+                // Send delete request to server
+                console.log(button.id);
+            });
+        });
+
+        var editButtons = document.querySelectorAll(".edit");
+        editButtons.forEach(button => {
+            button.addEventListener("click", function(){
+                // Navigate to page where edits can be made
+                console.log(button.id);
+            });
+        });
+    }, 3000);
+    
+    
 } 
