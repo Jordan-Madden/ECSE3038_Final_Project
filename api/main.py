@@ -121,7 +121,7 @@ def post_patient_data():
 
 @app.route("/api/record/<id>", methods=["GET"])
 def get_single_record_data(id):
-    record = mongo.db.records.find_one()
+    record = mongo.db.records.find_one({"patient_id":id})
     print(record)
     return jsonify(loads(dumps(record))) 
 
