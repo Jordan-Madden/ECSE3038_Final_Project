@@ -165,6 +165,6 @@ def post_record_data():
 if __name__ == "__main__":
     app.run(
         debug=True,
-        host="192.168.1.11",
+        host="192.168.1.9",
         port=5000
     )
