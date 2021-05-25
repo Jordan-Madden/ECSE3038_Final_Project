@@ -4,6 +4,7 @@
 '''
 
 from marshmallow import Schema, fields, ValidationError
+from flask_socketio import SocketIO, send
 from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
@@ -20,6 +21,8 @@ password = pd.read_csv("db_credentials.csv").columns[1]
 mongo_uri = "mongodb+srv://{}:{}@cluster0.weykq.mongodb.net/monday?retryWrites=true&w=majority".format(username, password)
 app.config["MONGO_URI"] = mongo_uri
 mongo = PyMongo(app)
+
+socketio = SocketIO(app)
 
 class RecordSchema(Schema):
     patient_id = fields.String(required=True)
@@ -52,12 +55,12 @@ def get_single_patient_data(id):
     patient = mongo.db.patients.find_one({"patient_id": id})
     return jsonify(loads(dumps(patient)))
 
-'''
-    This route handles the POST requests made to the server by the 
-    frontend 
-'''
 @app.route("/api/patient", methods=["POST"])
 def post_patient_data():
+    '''
+        This route handles the POST requests made to the server by the 
+        frontend 
+    '''
     try:
         now = datetime.now()
         dt = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -165,6 +168,6 @@ def post_record_data():
 if __name__ == "__main__":
     app.run(
         debug=True,
-        host="192.168.1.9",
+        host="192.168.1.6",
         port=5000
     )
