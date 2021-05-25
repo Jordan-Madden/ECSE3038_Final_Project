@@ -121,6 +121,7 @@ label #sidebar_btn:hover{
     font-weight: 600;
     margin-top: 90px;
     margin-left: 190px;
+    margin-bottom: 20px;
     position: relative;
 }
 .container .title:before{
@@ -137,7 +138,7 @@ label #sidebar_btn:hover{
     flex-direction: column;
     /* flex-wrap: wrap; */
     justify-content: space-between;
-    margin: 30px 0 12px 150px;
+    margin: 15px 0 12px 150px;
 }
 .container form .user_details .input_box{
     margin-bottom: 15px;

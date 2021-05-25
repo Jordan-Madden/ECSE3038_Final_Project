@@ -149,6 +149,9 @@ label #sidebar_btn:hover{
     width: 150px;
     height: 150px;
 }
+.patient_img img:hover{
+    cursor: pointer;
+}
 .buttons{
     display: flex;
 }
