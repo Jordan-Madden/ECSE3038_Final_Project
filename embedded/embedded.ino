@@ -21,8 +21,8 @@ int yaw = 0.0;
 String espMacAddress;
 
 void espSetup(){
-  String networkName = "FLOW-WiFi";
-  String networkPassword = "Honeymad5";
+  String networkName = "randomName";
+  String networkPassword = "randomPassword";
   
   // Reset the esp in case of power outage
   sendData("AT+RST\r\n", 10000, DEBUG);
@@ -49,17 +49,17 @@ String getMacAddress(){
 String sendData(String command, const int timeout, boolean debug) {
     String response = "";
     
-    Serial1.print(command); // send the read character to the esp8266
+    esp.print(command); // send the read character to the esp8266
     
     unsigned long time = millis();
     
     while( (time+timeout) > millis())
     {
-      while(Serial1.available())
+      while(esp.available())
       {
         
         // The esp has data so display its output to the serial window 
-        char c = Serial1.read(); // read the next character.
+        char c = esp.read(); // read the next character.
         response += c;
       }  
     }
@@ -155,8 +155,8 @@ String generatePost(String patient_id, float pos, int temp){
 }
 
 void setup() {
-  Serial.begin(115200);
-  Serial1.begin(115200);
+  Serial.begin(9600);
+  esp.begin(9600);
 
   Serial.println("################################################");
   Serial.println("                   START SETUP                  ");
