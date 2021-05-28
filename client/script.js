@@ -1,4 +1,13 @@
+// URL of the server 
+var serverURL = "http://192.168.1.6:5000";
+var position = 0;
+var p_id = "";
+var spanNum = 0;
+
 function createPatientCards(patient, record){
+    spanNum++;
+    var posID = "num"+spanNum.toString()
+
     var patientDataDiv = document.createElement("DIV");
     patientDataDiv.classList.add("patient_data");
 
@@ -8,6 +17,7 @@ function createPatientCards(patient, record){
 
     var patientImgImg = document.createElement("IMG");
     patientImgImg.src = "images/user.png";    
+    patientImgImg.setAttribute("id", patient.patient_id);
 
     var patientButtonDiv = document.createElement("DIV");
     patientButtonDiv.classList.add("buttons");
@@ -53,6 +63,7 @@ function createPatientCards(patient, record){
     var positionSpan1 = document.createElement("SPAN");
     positionSpan1.innerHTML = "Position";
     var positionSpan2 = document.createElement("SPAN");
+    positionSpan2.setAttribute("id", patient.patient_id+":");
     positionSpan2.innerHTML = record;
     positionDiv.append(positionSpan1);
     positionDiv.append(positionSpan2);
@@ -78,12 +89,13 @@ function createPatientCards(patient, record){
     return patientDataDiv;
 }
 
-var patientPath = "http://192.168.1.11:5000/api/patient";
+var patientPath = serverURL + "/api/patient";
 function getPatientData(){
+    console.log("Patient Data");
     return fetch(patientPath).then(res => res.json()).then(json => json);
 }
 
-var recordPath = "http://192.168.1.11:5000/api/record/";
+var recordPath = serverURL + "/api/record/";
 function getPosition(id){
     return fetch(recordPath + id).then(res => res.json()).then(json => json);
 }
@@ -110,10 +122,32 @@ async function displayPatientData(){
 }
 
 window.onload = function(){
-    
     displayPatientData();
 
-    setTimeout(function(){
+    // Receive the initial Server Sent Event(SSE)
+    var eventSource = new EventSource(serverURL+"/listen");
+    eventSource.addEventListener("message", function(e) {
+        var info = JSON.parse(e.data);
+        console.log(info.position);
+      }, false);
+
+    // Process al subsequent SSE
+    eventSource.addEventListener("online", function(e) {
+        // Extract the data sent from the server
+        info = JSON.parse(e.data);
+        position = info.position;
+        p_id = info.id;
+        console.log(position +" "+p_id);
+
+        // Change the HTML to reflect the change in the sensor reading
+        var searchID = p_id + ":";
+        var span2 = document.getElementById(searchID);
+        span2.innerHTML = position;
+        console.log(position);
+    }, true);
+    
+    window.setTimeout(function(){
+        // Send delete request if delete button is pressed
         var deleteButtons = document.querySelectorAll(".delete");
         deleteButtons.forEach(button => {
             button.addEventListener("click", function(){
@@ -131,6 +165,7 @@ window.onload = function(){
             });
         });
 
+        // Redirect user to page where they can make edit the information
         var editButtons = document.querySelectorAll(".edit");
         editButtons.forEach(button => {
             button.addEventListener("click", function(){
@@ -143,6 +178,18 @@ window.onload = function(){
                 window.open("information.html");
             });
         });
+
+        // Redirect user to the page where they can view a patients data in detail
+        var patientImg = document.querySelectorAll("img");
+        patientImg.forEach(img => {
+            img.addEventListener("click", function(){
+                console.log(img.id);
+
+                // Save ID to session storage and redirect to the edit page
+                sessionStorage.setItem("patient_id", img.id);
+                location.href = "individual_info.html";
+                window.open("individual_info.html");
+            });
+        })
     }, 3000);   
-    
 } 

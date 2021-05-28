@@ -2,27 +2,34 @@
     Author: Jordan Madden
     Description: ECSE3038 Final Project
 '''
-
+from gevent import monkey; monkey.patch_all()
+from flask import Flask, Response, stream_with_context
+from gevent.pywsgi import WSGIServer
 from marshmallow import Schema, fields, ValidationError
-from flask_socketio import SocketIO, send
 from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
 from datetime import datetime
+from threading import Lock
 from flask_cors import CORS
 from json import load, loads
 import pandas as pd
-
-app = Flask(__name__)
-CORS(app)
+import json
+import time
 
 username = pd.read_csv("db_credentials.csv").columns[0]
 password = pd.read_csv("db_credentials.csv").columns[1]
 mongo_uri = "mongodb+srv://{}:{}@cluster0.weykq.mongodb.net/monday?retryWrites=true&w=majority".format(username, password)
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = "superSecretKey"
 app.config["MONGO_URI"] = mongo_uri
+cors = CORS(app)
 mongo = PyMongo(app)
 
-socketio = SocketIO(app)
+# Initialize some of the record data
+pos = 100
+id = "aa:aa:aa:aa:aa"
 
 class RecordSchema(Schema):
     patient_id = fields.String(required=True)
@@ -42,9 +49,9 @@ def get_all_patient_data():
         This route returns all of the patient objects stored in the 
         database
     '''
+    print("MADE GET REQUEST")
     patients = mongo.db.patients.find()
     return jsonify(loads(dumps(patients))) 
-
 
 @app.route("/api/patient/<id>", methods=["GET"])
 def get_single_patient_data(id):
@@ -61,6 +68,7 @@ def post_patient_data():
         This route handles the POST requests made to the server by the 
         frontend 
     '''
+    print("POST REQUEST MADE")
     try:
         now = datetime.now()
         dt = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -130,12 +138,26 @@ def get_single_record_data(id):
     print(record)
     return jsonify(loads(dumps(record))) 
 
+@app.route("/listen")
+def listen():
+    def respond_to_client():
+        while True:
+            global pos
+            global id
+            counter = 100
+            _data = json.dumps({"position": str(pos), "id": id})
+            yield f"id: 1\ndata: {_data}\nevent: online\n\n"
+            time.sleep(3)
+    return Response(respond_to_client(), mimetype='text/event-stream')
+
 @app.route("/api/record", methods=["POST"])
 def post_record_data():
     '''
         This route handles the POST requests made to the server by the 
         embedded client
     '''
+    global pos
+    global id
     try:
         now = datetime.now()
         dt = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -144,6 +166,9 @@ def post_record_data():
         position = request.json["position"]
         temperature = request.json["temperature"]
         last_updated = dt
+
+        pos = position
+        id = patient_id
 
         jsonBody = {
             "patient_id": patient_id,
@@ -157,6 +182,11 @@ def post_record_data():
 
         print(jsonBody)
 
+        '''
+            TODO: Use sockets/SSE to update the position data (index.html)
+                  as soon it is received from the embedded client. 
+        '''
+
         return {
             "success": True,
             "msg": "data saved successfully",
@@ -166,8 +196,5 @@ def post_record_data():
         return e.messages, 400
 
 if __name__ == "__main__":
-    app.run(
-        debug=True,
-        host="192.168.1.6",
-        port=5000
-    )
+    http_server = WSGIServer(("192.168.1.6", 5000), app)
+    http_server.serve_forever()
