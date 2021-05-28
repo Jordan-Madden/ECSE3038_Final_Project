@@ -1,3 +1,6 @@
+// URL of the server 
+var serverURL = "http://192.168.1.6:5000";
+
 // Get id from session and clear the session
 var id = sessionStorage.getItem("patient_id");
 console.log(id);
@@ -15,8 +18,8 @@ button.addEventListener("click", function(event){
         // If any of the fields are left blank then make PATCH request
         console.log("Make PATCH Request");
 
+        // Construct the JSON body to be sent in the PATCH request
         jsonBody = {};
-
         for(i=0; i< 4; i++){
             if (first_name != ""){
                 jsonBody["first_name"] = first_name;
@@ -31,7 +34,9 @@ button.addEventListener("click", function(event){
                 jsonBody["patient_id"] = patient_id;
             }                    
         }
-        fetch("http://192.168.1.11:5000/api/patient/" + id, {
+
+        // Send the PATCH request
+        fetch(serverURL + "/api/patient/" + id, {
             method: "PATCH",
             body: JSON.stringify(jsonBody),
             headers:{
@@ -51,6 +56,7 @@ button.addEventListener("click", function(event){
         // If all fields are full, then make POST request
         console.log("Make POST Request");
 
+        // Construct the JSON body to be sent in the POST request
         jsonBody = {
             "first_name": first_name,
             "last_name": last_name,
@@ -58,7 +64,8 @@ button.addEventListener("click", function(event){
             "patient_id": patient_id,
         };
 
-        fetch("http://192.168.1.11:5000/api/patient", {
+        // Send the POST request 
+        fetch(serverURL + "/api/patient", {
             method: "POST",
             body: JSON.stringify(jsonBody),
             headers:{
