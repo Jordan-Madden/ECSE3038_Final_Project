@@ -188,7 +188,7 @@ void loop() {
   String postRequest = generatePostRequest("api/record", "5000", postData.length(), postData);  
   String CIPSend = generateCIPSend(postRequest.length());
 
-  sendData("AT+CIPSTART=\"TCP\",\"192.168.1.11\",5000\r\n", 3000, DEBUG);
+  sendData("AT+CIPSTART=\"TCP\",\"192.168.1.6\",5000\r\n", 3000, DEBUG);
   sendData(CIPSend, 1000, DEBUG);
   sendData(postRequest, 5000, DEBUG);
 }
