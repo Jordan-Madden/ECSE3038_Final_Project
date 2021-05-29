@@ -123,28 +123,6 @@ async function displayPatientData(){
 
 window.onload = function(){
     displayPatientData();
-
-    // Receive the initial Server Sent Event(SSE)
-    var eventSource = new EventSource(serverURL+"/listen");
-    eventSource.addEventListener("message", function(e) {
-        var info = JSON.parse(e.data);
-        console.log(info.position);
-      }, false);
-
-    // Process al subsequent SSE
-    eventSource.addEventListener("online", function(e) {
-        // Extract the data sent from the server
-        info = JSON.parse(e.data);
-        position = info.position;
-        p_id = info.id;
-        console.log(position +" "+p_id);
-
-        // Change the HTML to reflect the change in the sensor reading
-        var searchID = p_id + ":";
-        var span2 = document.getElementById(searchID);
-        span2.innerHTML = position;
-        console.log(position);
-    }, true);
     
     window.setTimeout(function(){
         // Send delete request if delete button is pressed
@@ -191,5 +169,28 @@ window.onload = function(){
                 window.open("individual_info.html");
             });
         })
-    }, 3000);   
+    }, 5000);   
+
+    // Receive the initial Server Sent Event(SSE)
+    var eventSource = new EventSource(serverURL+"/listen");
+    eventSource.addEventListener("message", function(e) {
+        var info = JSON.parse(e.data);
+        console.log(info.position);
+      }, false);
+
+    // Process al subsequent SSE
+    eventSource.addEventListener("online", function(e) {
+        // Extract the data sent from the server
+        info = JSON.parse(e.data);
+        position = info.position;
+        p_id = info.id;
+        console.log(position +" "+p_id);
+
+        // Change the HTML to reflect the change in the sensor reading
+        var searchID = p_id + ":";
+        var span2 = document.getElementById(searchID);
+        span2.innerHTML = position;
+        console.log(position);
+        
+    }, true);
 } 
