@@ -1,5 +1,5 @@
 // URL of the server 
-var serverURL = "http://192.168.1.6:5000";
+var serverURL = "http://192.168.1.7:5000";
 
 // Get id from session and clear the session
 var id = sessionStorage.getItem("patient_id");
