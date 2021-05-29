@@ -1,18 +1,19 @@
 '''
     Author: Jordan Madden
     Description: ECSE3038 Final Project
+    Usage: python main.py
 '''
-from gevent import monkey; monkey.patch_all()
-from flask import Flask, Response, stream_with_context
-from gevent.pywsgi import WSGIServer
+
 from marshmallow import Schema, fields, ValidationError
+from flask import Flask, Response, stream_with_context
+from gevent import monkey; monkey.patch_all()
 from flask import Flask, request, jsonify
+from gevent.pywsgi import WSGIServer
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
 from datetime import datetime
-from threading import Lock
-from flask_cors import CORS
 from json import load, loads
+from flask_cors import CORS
 import pandas as pd
 import json
 import time
@@ -95,7 +96,6 @@ def post_patient_data():
             "message": "Data saved successfully",
             "date": dt
         }
-
     except ValidationError as e:
         return e.messages, 400
 
@@ -127,6 +127,37 @@ def delete_patient_data(id):
             "success": False,
         }, 400
 
+@app.route("/api/record/graph/<id>", methods=["GET"])
+def get_graph_data(id):
+    '''
+        This route returns all of the data for a specific patient that was generated
+        within the past 30 minutes so that the graph of the individual patients data 
+        can be populated
+    ''' 
+    def str_to_time(time_data):
+        hr = int(time_data[11:13])
+        min = int(time_data[14:16])
+        return (60*hr + min)        
+
+    graph_data = []
+
+    now = datetime.now()
+    dt = now.strftime("%d/%m/%Y %H:%M:%S")
+    curr_time = str_to_time(dt)
+    print(curr_time)
+
+    record = mongo.db.records.find({"patient_id":id})
+    record_data = loads(dumps(record))
+    for info in record_data:
+        record_time = str_to_time(info["last_updated"])
+        print(record_time)
+        
+        if ((curr_time - record_time) <= 30):
+            graph_data.append(info)
+
+    print(graph_data)
+    return jsonify(loads(json.dumps(graph_data)))
+
 @app.route("/api/record/<id>", methods=["GET"])
 def get_single_record_data(id):
     '''
@@ -136,10 +167,15 @@ def get_single_record_data(id):
     '''
     record = mongo.db.records.find_one({"patient_id":id})
     print(record)
-    return jsonify(loads(dumps(record))) 
+    return jsonify(loads(dumps(record)))
 
 @app.route("/listen")
 def listen():
+    '''
+        This route uses Server Sent Events to send data to the frontend
+        of the application every time a POST is made by the embedded 
+        circuit. 
+    '''
     def respond_to_client():
         while True:
             global pos
@@ -182,11 +218,6 @@ def post_record_data():
 
         print(jsonBody)
 
-        '''
-            TODO: Use sockets/SSE to update the position data (index.html)
-                  as soon it is received from the embedded client. 
-        '''
-
         return {
             "success": True,
             "msg": "data saved successfully",
@@ -196,5 +227,6 @@ def post_record_data():
         return e.messages, 400
 
 if __name__ == "__main__":
-    http_server = WSGIServer(("192.168.1.6", 5000), app)
+    http_server = WSGIServer(("192.168.1.7", 5000), app)
     http_server.serve_forever()
+
