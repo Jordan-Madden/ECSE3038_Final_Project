@@ -168,6 +168,9 @@ void setup() {
   // Setup the ESP8266
   espSetup();
 
+  // Setup the LM35
+  pinMode(LM35, INPUT);
+
   // Get the MAC address of the ESP
   espMacAddress = getMacAddress();
   Serial.print("MAC Address: "); Serial.println(espMacAddress);
